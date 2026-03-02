@@ -1,0 +1,99 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+
+using namespace std;
+
+class Money {
+private:
+    long long rubles;
+    int kopecks;
+
+    // Метод нормализации: превращает любые копейки в правильный формат
+    void normalize(long long totalKopecks) {
+        rubles = totalKopecks / 100;
+        kopecks = totalKopecks % 100;
+        if (kopecks < 0) {
+            rubles--;
+            kopecks += 100;
+        }
+    }
+
+public:
+    Money() : rubles(0), kopecks(0) {}
+
+    // Конструктор из двух чисел (рубли и копейки)
+    Money(long long r, int k) {
+        normalize(r * 100 + k);
+    }
+
+    // Конструктор из double (математический: 5.75 -> 5 руб 75 коп)
+    Money(double amount) {
+        normalize(round(amount * 100));
+    }
+
+    long long toKopecks() const { return rubles * 100 + kopecks; }
+    
+
+    // Операторы
+    Money operator+(const Money& other) const { return Money(0, toKopecks() + other.toKopecks()); }
+    Money operator-(const Money& other) const { return Money(0, toKopecks() - other.toKopecks()); }
+    Money operator-() const { return Money(0, -toKopecks()); }
+    Money operator*(int n) const { return Money(0, toKopecks() * n); }
+    Money operator*(double n) const { return Money(0, round(toKopecks() * n)); }
+    Money operator/(int n) const { return Money(0, toKopecks() / n); }
+
+    bool operator==(const Money& other) const { return toKopecks() == other.toKopecks(); }
+    bool operator!=(const Money& other) const { return toKopecks() != other.toKopecks(); }
+
+    // Вывод
+    friend ostream& operator<<(ostream& os, const Money& m) {
+        os << m.rubles << " руб. " << (m.kopecks < 10 ? "0" : "") << m.kopecks << " коп.";
+        return os;
+    }
+
+    friend istream& operator>>(istream& is, Money& m) {
+        string s;
+        if (!(is >> s)) return is;
+
+        size_t dotPos = s.find('.');
+        if (dotPos != string::npos) {
+            long long r = stoll(s.substr(0, dotPos));
+            int k = stoi(s.substr(dotPos + 1));
+            m = Money(r, k); 
+        } else {
+
+            long long r = stoll(s);
+            int k = 0;
+
+            while (is.peek() != EOF && !isdigit(is.peek())) is.ignore();
+            if (isdigit(is.peek())) is >> k;
+            m = Money(r, k);
+        }
+        return is;
+    }
+};
+
+int main() {
+    // 1. Проверка нормализации из задания
+    Money m1(10, 150); 
+    Money m2(5.99);    
+    Money m3(3, 25);   
+
+    cout << "m1: " << m1 << endl; // 11 руб. 50 коп.
+    cout << "m2: " << m2 << endl; // 5 руб. 99 коп.
+    cout << "m3: " << m3 << endl;
+    cout << "m1 + m3 = " << (m1 + m3) << endl;
+    cout << "m2 * 3 = " << (m2 * 3) << endl;
+    cout << "m2 * 1.5 = " << (m2 * 1.5) << endl;
+    cout << "m1 / 4 = " << (m1 / 4) << endl;
+    cout << "m2 == m3: " << (m2 == m3 ? "Да" : "Нет") << endl;
+
+    Money mTest;
+    cout << "\nВведите сумму: ";
+    cin >> mTest;
+    cout << "Результат: " << mTest << endl; // Будет 74 руб. 44 коп.
+
+
+    return 0;
+}
