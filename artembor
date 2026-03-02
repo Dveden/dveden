@@ -9,7 +9,6 @@ private:
     long long rubles;
     int kopecks;
 
-    // Метод нормализации: превращает любые копейки в правильный формат
     void normalize(long long totalKopecks) {
         rubles = totalKopecks / 100;
         kopecks = totalKopecks % 100;
@@ -22,20 +21,16 @@ private:
 public:
     Money() : rubles(0), kopecks(0) {}
 
-    // Конструктор из двух чисел (рубли и копейки)
     Money(long long r, int k) {
         normalize(r * 100 + k);
     }
 
-    // Конструктор из double (математический: 5.75 -> 5 руб 75 коп)
     Money(double amount) {
         normalize(round(amount * 100));
     }
 
     long long toKopecks() const { return rubles * 100 + kopecks; }
     
-
-    // Операторы
     Money operator+(const Money& other) const { return Money(0, toKopecks() + other.toKopecks()); }
     Money operator-(const Money& other) const { return Money(0, toKopecks() - other.toKopecks()); }
     Money operator-() const { return Money(0, -toKopecks()); }
@@ -46,7 +41,6 @@ public:
     bool operator==(const Money& other) const { return toKopecks() == other.toKopecks(); }
     bool operator!=(const Money& other) const { return toKopecks() != other.toKopecks(); }
 
-    // Вывод
     friend ostream& operator<<(ostream& os, const Money& m) {
         os << m.rubles << " руб. " << (m.kopecks < 10 ? "0" : "") << m.kopecks << " коп.";
         return os;
@@ -75,7 +69,6 @@ public:
 };
 
 int main() {
-    // 1. Проверка нормализации из задания
     Money m1(10, 150); 
     Money m2(5.99);    
     Money m3(3, 25);   
